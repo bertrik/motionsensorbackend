@@ -4,9 +4,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.Instant;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class TtnDownlinkMessageTest {

@@ -1,5 +1,6 @@
 package nl.bertriksikken.ttn.dto;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,9 @@ public final class TtnUplinkMessage {
     @JsonProperty("payload_fields")
     Map<String, Object> payloadFields;
     
+    @JsonProperty("metadata")
+    Metadata metadata;
+    
     public String getAppId() {
         return appId;
     }
@@ -61,6 +65,10 @@ public final class TtnUplinkMessage {
     	return new HashMap<>(payloadFields);
     }
     
+    public Instant getTime() {
+        return metadata.getTime();
+    }
+    
     @Override
     public String toString() {
         if (rawPayload != null) {
@@ -74,5 +82,17 @@ public final class TtnUplinkMessage {
             return payloadFields.toString();
         }
         return "";
+    }
+    
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static final class Metadata {
+        
+        @JsonProperty("time")
+        private String time;
+        
+        public Instant getTime() {
+            return Instant.parse(time);
+        }
+        
     }
 }

@@ -8,10 +8,10 @@ public final class TtnConfig {
     private String url = "tcp://eu.thethings.network";
     
     @JsonProperty("name")
-    private String name = "batbox";
+    private String name = "vleermuispir";
 
     @JsonProperty("key")
-    private String key = "ttn-account-v2.zGpGyRv-mOgzxAAAdn6vR_dBx9uDNecsvrYGyPQIHTo";
+    private String key = "ttn-account-v2.XF13zuLFPowflh4RIyfKXPcl0F9fmYfYr28vIXJXcPs";
 
     public String getUrl() {
         return url;

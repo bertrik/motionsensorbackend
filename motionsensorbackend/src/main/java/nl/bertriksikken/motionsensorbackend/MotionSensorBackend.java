@@ -3,22 +3,20 @@ package nl.bertriksikken.motionsensorbackend;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import nl.bertriksikken.motionsensor.dto.MotionSensorUplinkMessage;
 import nl.bertriksikken.ttn.MqttListener;
 import nl.bertriksikken.ttn.TtnConfig;
-import nl.bertriksikken.ttn.dto.TtnDownlinkMessage;
 import nl.bertriksikken.ttn.dto.TtnUplinkMessage;
 
 public final class MotionSensorBackend {
@@ -50,27 +48,18 @@ public final class MotionSensorBackend {
         // decode JSON
         try {
             byte[] payload = uplink.getRawPayload();
-            if ((payload == null) || payload.length < 4) {
-                LOG.warn("payload empty or too small");
+            if (payload != null) {
+                Instant time = uplink.getTime().truncatedTo(ChronoUnit.MINUTES);
+                MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
+                time = time.minusSeconds(60 * message.getTime());
+                MotionEvent event = new MotionEvent(time, message.isOccupied(), message.getVoltage(),
+                        message.getTemperature(), message.getCount());
+                LOG.info("event={}", event);
             } else {
-                ByteBuffer bb = ByteBuffer.wrap(payload).order(ByteOrder.BIG_ENDIAN);
-                long deviceTime = bb.getInt() & 0xFFFFFFFFL;
-                long actual = Instant.now().getEpochSecond();
-                long timeDiff = (actual - deviceTime);
-                LOG.info("Received time: {}, Actual time: {}, difference {}", deviceTime, actual, timeDiff);
-                if (Math.abs(timeDiff) > 30) {
-                    // send a downlink to correct the offset
-                    ByteBuffer dlPayload = ByteBuffer.allocate(8).order(ByteOrder.BIG_ENDIAN);
-                    dlPayload.putInt((int) timeDiff);
-                    dlPayload.putInt(uplink.getCounter());
-                    TtnDownlinkMessage downlink = new TtnDownlinkMessage(uplink.getPort(), false, dlPayload.array());
-                    listener.sendDownlink(uplink.getAppId(), uplink.getDevId(), downlink);
-                }
+                LOG.warn("payload empty or too small");
             }
-        } catch (MqttException e) {
-            LOG.warn("Caught MqttException: '{}'", e.getMessage());
-        } catch (JsonProcessingException e) {
-            LOG.warn("Caught JsonProcessingException: '{}'", e.getMessage());
+        } catch (Exception e) {
+            LOG.warn("Caught Exception: '{}'", e.getMessage());
         }
 
     }
