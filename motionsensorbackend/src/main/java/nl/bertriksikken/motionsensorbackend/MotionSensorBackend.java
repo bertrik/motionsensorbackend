@@ -70,12 +70,12 @@ public final class MotionSensorBackend {
      * @throws MqttException in case of a problem starting MQTT client
      */
     private void start() throws MqttException {
-        LOG.info("Starting LoraLuftdatenForwarder application");
+        LOG.info("Starting MotionSensorBackend application");
 
         // start sub-modules
         mqttListener.start();
 
-        LOG.info("Started LoraLuftdatenForwarder application");
+        LOG.info("Started MotionSensorBackend application");
     }
 
     /**
@@ -84,11 +84,11 @@ public final class MotionSensorBackend {
      * @throws MqttException
      */
     private void stop() {
-        LOG.info("Stopping LoraLuftdatenForwarder application");
+        LOG.info("Stopping MotionSensorBackend application");
 
         mqttListener.stop();
 
-        LOG.info("Stopped LoraLuftdatenForwarder application");
+        LOG.info("Stopped MotionSensorBackend application");
     }
 
     private static MotionSensorBackendConfig readConfig(File file) throws IOException {
