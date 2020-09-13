@@ -1,0 +1,21 @@
+# copy this to /etc/systemd/system
+# then sudo systemctl daemon-reload
+# and enable with sudo systemctl enable --now motionsensorbackend
+
+[Unit]
+Description=motionsensorbackend
+After=network.target
+
+[Service]
+WorkingDirectory=/home/bertrik/motionsensorbackend
+ExecStart=/home/bertrik/motionsensorbackend/bin/motionsensorbackend
+Type=simple
+KillMode=process
+Restart=on-failure
+RestartSec=10s
+TimeoutStopSec=15s
+User=bertrik
+Environment="MOTIONSENSORBACKEND_OPTS=-Xmx64M"
+
+[Install]
+WantedBy=multi-user.target
