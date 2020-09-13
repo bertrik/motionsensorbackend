@@ -25,6 +25,7 @@ public final class MotionSensorBackend {
     private static final String CONFIG_FILE = "motionsensorbackend.yaml";
 
     private final MqttListener mqttListener;
+    private final MotionEventWriter csvWriter;
 
     public static void main(String[] args) throws IOException, MqttException {
         PropertyConfigurator.configure("log4j.properties");
@@ -38,8 +39,11 @@ public final class MotionSensorBackend {
     private MotionSensorBackend(MotionSensorBackendConfig config) {
         TtnConfig ttnAppConfig = config.getTtnConfig();
         LOG.info("Adding MQTT listener for TTN application '{}'", ttnAppConfig.getName());
+
         mqttListener = new MqttListener(ttnAppConfig.getUrl(), ttnAppConfig.getName(), ttnAppConfig.getKey());
         mqttListener.setUplinkCallback((topic, message) -> messageReceived(mqttListener, topic, message));
+
+        csvWriter = new MotionEventWriter(config.getStorageFolder());
     }
 
     private void messageReceived(MqttListener listener, String topic, TtnUplinkMessage uplink) {
@@ -49,12 +53,11 @@ public final class MotionSensorBackend {
         try {
             byte[] payload = uplink.getRawPayload();
             if (payload != null) {
-                Instant time = uplink.getTime().truncatedTo(ChronoUnit.MINUTES);
                 MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
-                time = time.minusSeconds(60 * message.getTime());
-                MotionEvent event = new MotionEvent(time, message.isOccupied(), message.getVoltage(),
-                        message.getTemperature(), message.getCount());
-                LOG.info("event={}", event);
+                Instant time = uplink.getTime().minusSeconds(60 * message.getTime()).truncatedTo(ChronoUnit.MINUTES);
+                MotionEvent event = new MotionEvent(uplink.getCounter(), time, message.isOccupied(),
+                        message.getVoltage(), message.getTemperature(), message.getCount());
+                csvWriter.write(uplink.getHardwareSerial(), event);
             } else {
                 LOG.warn("payload empty or too small");
             }
