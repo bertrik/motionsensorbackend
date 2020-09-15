@@ -2,6 +2,7 @@ package nl.bertriksikken.motionsensorbackend;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.time.Instant;
 
@@ -26,7 +27,7 @@ public final class MotionEventWriterTest {
         writer.write("device", event1);
         File file = writer.write("device", event2);
         
-        String result = new String(Files.readAllBytes(file.toPath()));
+        String result = new String(Files.readAllBytes(file.toPath()), Charset.forName("ASCII"));
         Assert.assertNotNull(result);
         System.out.println(result);
     }
