@@ -4,12 +4,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Data object containing the fields as parsed from the TTN uplink message.
  */
-@JsonPropertyOrder({"status", "battery", "voltage", "temp", "time", "count"})
 public final class MotionSensorUplinkMessage {
     
     @JsonProperty("status")

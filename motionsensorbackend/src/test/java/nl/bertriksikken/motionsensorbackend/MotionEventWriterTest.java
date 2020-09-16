@@ -21,8 +21,8 @@ public final class MotionEventWriterTest {
         MotionEventWriter writer = new MotionEventWriter(tempFolder.getRoot());
         
         Instant now = Instant.now();
-        MotionEvent event1 = new MotionEvent(11, now, true, 3.6, 22.1, 1);
-        MotionEvent event2 = new MotionEvent(12, now.plusSeconds(60), false, 3.5, 22.1, 2);
+        MotionEvent event1 = new MotionEvent(now, 11, true, 3.6, 22.1, 1, now);
+        MotionEvent event2 = new MotionEvent(now.plusSeconds(60), 12, false, 3.5, 22.1, 2, now);
 
         writer.write("device", event1);
         File file = writer.write("device", event2);

@@ -36,17 +36,18 @@ public final class MotionSensorBackend {
         Runtime.getRuntime().addShutdownHook(new Thread(app::stop));
     }
 
-    private MotionSensorBackend(MotionSensorBackendConfig config) {
+    MotionSensorBackend(MotionSensorBackendConfig config) {
         TtnConfig ttnAppConfig = config.getTtnConfig();
         LOG.info("Adding MQTT listener for TTN application '{}'", ttnAppConfig.getName());
 
         mqttListener = new MqttListener(ttnAppConfig.getUrl(), ttnAppConfig.getName(), ttnAppConfig.getKey());
-        mqttListener.setUplinkCallback((topic, message) -> messageReceived(mqttListener, topic, message));
+        mqttListener.setUplinkCallback(this::messageReceived);
 
         csvWriter = new MotionEventWriter(config.getStorageFolder());
     }
 
-    private void messageReceived(MqttListener listener, String topic, TtnUplinkMessage uplink) {
+    // package-private for testing
+    void messageReceived(String topic, TtnUplinkMessage uplink) {
         LOG.info("Received: '{}'", uplink);
 
         // decode JSON
@@ -54,9 +55,10 @@ public final class MotionSensorBackend {
             byte[] payload = uplink.getRawPayload();
             if (payload != null) {
                 MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
-                Instant time = uplink.getTime().minusSeconds(60 * message.getTime()).truncatedTo(ChronoUnit.MINUTES);
-                MotionEvent event = new MotionEvent(uplink.getCounter(), time, message.isOccupied(),
-                        message.getVoltage(), message.getTemperature(), message.getCount());
+                Instant time = uplink.getTime();
+                Instant lastEvent = time.minus(message.getTime(), ChronoUnit.MINUTES);
+                MotionEvent event = new MotionEvent(time, uplink.getCounter(), message.isOccupied(),
+                        message.getVoltage(), message.getTemperature(), message.getCount(), lastEvent);
                 csvWriter.write(uplink.getHardwareSerial(), event);
             } else {
                 LOG.warn("payload empty or too small");
