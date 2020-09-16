@@ -41,7 +41,7 @@ public final class MotionEvent {
         this.voltage = voltage;
         this.temperature = temperature;
         this.count = count;
-        this.lastEvent = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES);
+        this.lastEvent = OffsetDateTime.ofInstant(lastEvent, ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES);
     }
 
     public OffsetDateTime getDateTime() {
