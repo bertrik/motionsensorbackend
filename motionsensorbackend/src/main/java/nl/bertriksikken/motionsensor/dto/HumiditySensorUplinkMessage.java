@@ -1,0 +1,70 @@
+package nl.bertriksikken.motionsensor.dto;
+
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+/**
+ * Representation of TBHH100 sensor data, as uploaded over LoRaWAN.
+ */
+public final class HumiditySensorUplinkMessage {
+
+    @JsonProperty("status")
+    private int status;
+    @JsonProperty("battery")
+    private double voltage;
+
+    @JsonProperty("temp")
+    private int temperature;
+    @JsonProperty("rh")
+    private int humidity;
+    @JsonProperty("co2")
+    private int co2;
+    @JsonProperty("voc")
+    private int voc;
+
+    public HumiditySensorUplinkMessage(int status, double voltage, int temperature, int humidity, int co2, int voc) {
+        this.status = status;
+        this.voltage = voltage;
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.co2 = co2;
+        this.voc = voc;
+    }
+
+    public static HumiditySensorUplinkMessage decode(byte[] data) {
+        ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+        int status = bb.get();
+        double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
+        int temperature = (bb.get() & 0x7F) - 32;
+        int humidity = bb.get() & 0x7F;
+        int co2 = bb.getShort();
+        int voc = bb.getShort();
+        return new HumiditySensorUplinkMessage(status, voltage, temperature, humidity, co2, voc);
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public double getVoltage() {
+        return voltage;
+    }
+
+    public int getTemperature() {
+        return temperature;
+    }
+
+    public int getHumidity() {
+        return humidity;
+    }
+
+    public int getCo2() {
+        return co2;
+    }
+
+    public int getVoc() {
+        return voc;
+    }
+}
