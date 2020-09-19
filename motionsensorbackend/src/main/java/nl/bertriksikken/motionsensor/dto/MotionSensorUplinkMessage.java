@@ -6,10 +6,10 @@ import java.nio.ByteOrder;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Data object containing the fields as parsed from the TTN uplink message.
+ * Representation of TBMS100 sensor data, as uploaded over LoRaWAN.
  */
 public final class MotionSensorUplinkMessage {
-    
+
     @JsonProperty("status")
     private boolean occupied;
     @JsonProperty("battery")
@@ -60,5 +60,5 @@ public final class MotionSensorUplinkMessage {
     public int getCount() {
         return count;
     }
-    
+
 }
