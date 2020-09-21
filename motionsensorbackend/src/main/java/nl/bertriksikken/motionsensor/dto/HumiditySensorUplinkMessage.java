@@ -1,5 +1,6 @@
 package nl.bertriksikken.motionsensor.dto;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Representation of TBHH100 sensor data, as uploaded over LoRaWAN.
  */
 public final class HumiditySensorUplinkMessage {
-    
+
     public static final int PORT = 103;
 
     @JsonProperty("status")
@@ -35,15 +36,19 @@ public final class HumiditySensorUplinkMessage {
         this.voc = voc;
     }
 
-    public static HumiditySensorUplinkMessage decode(byte[] data) {
+    public static HumiditySensorUplinkMessage decode(byte[] data) throws DecodeException {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-        int status = bb.get();
-        double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
-        int temperature = (bb.get() & 0x7F) - 32;
-        int humidity = bb.get() & 0x7F;
-        int co2 = bb.getShort();
-        int voc = bb.getShort();
-        return new HumiditySensorUplinkMessage(status, voltage, temperature, humidity, co2, voc);
+        try {
+            int status = bb.get();
+            double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
+            int temperature = (bb.get() & 0x7F) - 32;
+            int humidity = bb.get() & 0x7F;
+            int co2 = bb.getShort();
+            int voc = bb.getShort();
+            return new HumiditySensorUplinkMessage(status, voltage, temperature, humidity, co2, voc);
+        } catch (BufferUnderflowException e) {
+            throw new DecodeException(e);
+        }
     }
 
     public int getStatus() {

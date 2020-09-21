@@ -9,7 +9,7 @@ public final class HumiditySensorUplinkMessageTest {
      * Verifies decoding of a raw message into individual fields.
      */
     @Test
-    public void testDecode() {
+    public void testDecode() throws DecodeException {
         byte[] data = new byte[] {0x08, 0x00, 50, 75, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF};
         HumiditySensorUplinkMessage message = HumiditySensorUplinkMessage.decode(data);
         

@@ -1,5 +1,6 @@
 package nl.bertriksikken.motionsensor.dto;
 
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -31,16 +32,20 @@ public final class MotionSensorUplinkMessage {
         this.count = count;
     }
 
-    public static MotionSensorUplinkMessage decode(byte[] data) {
+    public static MotionSensorUplinkMessage decode(byte[] data) throws DecodeException {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-        boolean occupied = (bb.get() != 0);
-        double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
-        double temperature = bb.get() - 32;
-        int time = bb.getShort();
-        int count = bb.get() & 0xFF;
-        count += (bb.get() & 0xFF) << 8;
-        count += (bb.get() & 0xFF) << 16;
-        return new MotionSensorUplinkMessage(occupied, voltage, temperature, time, count);
+        try {
+            boolean occupied = (bb.get() != 0);
+            double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
+            double temperature = bb.get() - 32;
+            int time = bb.getShort();
+            int count = bb.get() & 0xFF;
+            count += (bb.get() & 0xFF) << 8;
+            count += (bb.get() & 0xFF) << 16;
+            return new MotionSensorUplinkMessage(occupied, voltage, temperature, time, count);
+        } catch (BufferUnderflowException e) {
+            throw new DecodeException(e);
+        }
     }
 
     public boolean isOccupied() {

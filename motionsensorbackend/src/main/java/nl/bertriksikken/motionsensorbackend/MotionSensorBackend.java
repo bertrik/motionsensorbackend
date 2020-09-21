@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import nl.bertriksikken.motionsensor.dto.DecodeException;
 import nl.bertriksikken.motionsensor.dto.HumiditySensorUplinkMessage;
 import nl.bertriksikken.motionsensor.dto.MotionSensorUplinkMessage;
 import nl.bertriksikken.ttn.MqttListener;
@@ -65,12 +66,14 @@ public final class MotionSensorBackend {
                 LOG.warn("Unhandled message on port: {}", port);
                 break;
             }
+        } catch (DecodeException e) {
+            LOG.warn("Caught DecodeException: '{}'", e.getMessage());
         } catch (IOException e) {
             LOG.warn("Caught IOException: '{}'", e.getMessage());
         }
     }
 
-    private void handleMotionSensor(TtnUplinkMessage uplink) throws IOException {
+    private void handleMotionSensor(TtnUplinkMessage uplink) throws IOException, DecodeException {
         byte[] payload = uplink.getRawPayload();
         if (payload != null) {
             MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
@@ -82,7 +85,7 @@ public final class MotionSensorBackend {
         }
     }
 
-    private void handleHumiditySensor(TtnUplinkMessage uplink) {
+    private void handleHumiditySensor(TtnUplinkMessage uplink) throws DecodeException {
         byte[] payload = uplink.getRawPayload();
         if (payload != null) {
             HumiditySensorUplinkMessage message = HumiditySensorUplinkMessage.decode(payload);

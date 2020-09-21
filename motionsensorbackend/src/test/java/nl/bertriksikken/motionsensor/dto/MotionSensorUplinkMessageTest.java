@@ -6,7 +6,7 @@ import org.junit.Test;
 public final class MotionSensorUplinkMessageTest {
 
     @Test
-    public void testDecode() {
+    public void testDecode() throws DecodeException {
         byte[] data = new byte[] { 0x00, (byte)0xFB, 0x36, 0x41, 0x00, (byte)0x8C, 0x07, 0x00};
         MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(data);
 
