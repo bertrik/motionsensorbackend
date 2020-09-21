@@ -3,6 +3,7 @@ package nl.bertriksikken.motionsensor.dto;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -18,13 +19,13 @@ public final class MotionSensorUplinkMessage {
     @JsonProperty("battery")
     private double voltage;
     @JsonProperty("temp")
-    private double temperature;
+    private int temperature;
     @JsonProperty("time")
     private int time;
     @JsonProperty("count")
     private int count;
 
-    MotionSensorUplinkMessage(boolean occupied, double voltage, double temperature, int time, int count) {
+    MotionSensorUplinkMessage(boolean occupied, double voltage, int temperature, int time, int count) {
         this.occupied = occupied;
         this.voltage = voltage;
         this.temperature = temperature;
@@ -37,7 +38,7 @@ public final class MotionSensorUplinkMessage {
         try {
             boolean occupied = (bb.get() != 0);
             double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
-            double temperature = bb.get() - 32;
+            int temperature = bb.get() - 32;
             int time = bb.getShort();
             int count = bb.get() & 0xFF;
             count += (bb.get() & 0xFF) << 8;
@@ -56,7 +57,7 @@ public final class MotionSensorUplinkMessage {
         return voltage;
     }
 
-    public double getTemperature() {
+    public int getTemperature() {
         return temperature;
     }
 
@@ -66,6 +67,11 @@ public final class MotionSensorUplinkMessage {
 
     public int getCount() {
         return count;
+    }
+
+    public String toString() {
+        return String.format(Locale.ROOT, "{occupied=%s,voltage=%f,temperature=%d,count=%d,time=%d}", occupied, voltage,
+                temperature, count, time);
     }
 
 }

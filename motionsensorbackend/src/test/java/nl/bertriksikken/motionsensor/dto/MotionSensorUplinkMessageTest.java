@@ -15,6 +15,8 @@ public final class MotionSensorUplinkMessageTest {
         Assert.assertEquals(22.0, message.getTemperature(), 0.1);
         Assert.assertEquals(65, message.getTime());
         Assert.assertEquals(1932, message.getCount());
+        
+        Assert.assertNotNull(message.toString());
     }
     
 }

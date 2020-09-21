@@ -15,6 +15,8 @@ public final class HumiditySensorUplinkMessageTest {
         
         Assert.assertEquals(18, message.getTemperature());
         Assert.assertEquals(75, message.getHumidity());
+
+        Assert.assertNotNull(message.toString());
     }
-    
+
 }

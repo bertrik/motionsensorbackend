@@ -3,6 +3,7 @@ package nl.bertriksikken.motionsensor.dto;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -74,4 +75,10 @@ public final class HumiditySensorUplinkMessage {
     public int getVoc() {
         return voc;
     }
+    
+    public String toString() {
+        return String.format(Locale.ROOT, "{status=%s,voltage=%f,temperature=%d,humidity=%d}", status, voltage,
+                temperature, humidity);
+    }
+
 }
