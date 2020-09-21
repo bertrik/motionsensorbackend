@@ -63,8 +63,8 @@ public final class MotionSensorBackend {
             } else {
                 LOG.warn("payload empty or too small");
             }
-        } catch (Exception e) {
-            LOG.warn("Caught Exception: '{}'", e.getMessage());
+        } catch (IOException e) {
+            LOG.warn("Caught IOException: '{}'", e.getMessage());
         }
 
     }
