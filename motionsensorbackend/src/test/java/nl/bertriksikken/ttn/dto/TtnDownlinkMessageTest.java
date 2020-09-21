@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.Instant;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,6 +23,8 @@ public final class TtnDownlinkMessageTest {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(message);
         System.out.println(json);
+        
+        Assert.assertNotNull(message.toString());
     }
     
 }
