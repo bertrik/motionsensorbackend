@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public final class MotionSensorUplinkMessage {
 
+    public static final int PORT = 102;
+
     @JsonProperty("status")
     private boolean occupied;
     @JsonProperty("battery")

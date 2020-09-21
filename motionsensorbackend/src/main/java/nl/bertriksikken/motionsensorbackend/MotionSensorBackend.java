@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import nl.bertriksikken.motionsensor.dto.HumiditySensorUplinkMessage;
 import nl.bertriksikken.motionsensor.dto.MotionSensorUplinkMessage;
 import nl.bertriksikken.ttn.MqttListener;
 import nl.bertriksikken.ttn.TtnConfig;
@@ -48,25 +49,47 @@ public final class MotionSensorBackend {
 
     // package-private for testing
     void messageReceived(String topic, TtnUplinkMessage uplink) {
-        LOG.info("Received: '{}'", uplink);
+        int port = uplink.getPort();
+        LOG.info("Received on port {}: '{}'", port, uplink);
 
         // decode JSON
         try {
-            byte[] payload = uplink.getRawPayload();
-            if (payload != null) {
-                MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
-                Instant time = uplink.getTime();
-                Instant lastEvent = time.minus(message.getTime(), ChronoUnit.MINUTES);
-                MotionEvent event = new MotionEvent(time, uplink.getCounter(), message.isOccupied(),
-                        message.getVoltage(), message.getTemperature(), message.getCount(), lastEvent);
-                csvWriter.write(uplink.getHardwareSerial(), event);
-            } else {
-                LOG.warn("payload empty or too small");
+            switch (port) {
+            case MotionSensorUplinkMessage.PORT:
+                handleMotionSensor(uplink);
+                break;
+            case HumiditySensorUplinkMessage.PORT:
+                handleHumiditySensor(uplink);
+                break;
+            default:
+                LOG.warn("Unhandled message on port: {}", port);
+                break;
             }
         } catch (IOException e) {
             LOG.warn("Caught IOException: '{}'", e.getMessage());
         }
+    }
 
+    private void handleMotionSensor(TtnUplinkMessage uplink) throws IOException {
+        byte[] payload = uplink.getRawPayload();
+        if (payload != null) {
+            MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
+            Instant time = uplink.getTime();
+            Instant lastEvent = time.minus(message.getTime(), ChronoUnit.MINUTES);
+            MotionEvent event = new MotionEvent(time, uplink.getCounter(), message.isOccupied(), message.getVoltage(),
+                    message.getTemperature(), message.getCount(), lastEvent);
+            csvWriter.write(uplink.getHardwareSerial(), event);
+        }
+    }
+
+    private void handleHumiditySensor(TtnUplinkMessage uplink) {
+        byte[] payload = uplink.getRawPayload();
+        if (payload != null) {
+            HumiditySensorUplinkMessage message = HumiditySensorUplinkMessage.decode(payload);
+            LOG.info("Discarding message: {}", message);
+        } else {
+            LOG.warn("payload empty or too small");
+        }
     }
 
     /**

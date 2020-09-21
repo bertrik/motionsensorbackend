@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Representation of TBHH100 sensor data, as uploaded over LoRaWAN.
  */
 public final class HumiditySensorUplinkMessage {
+    
+    public static final int PORT = 103;
 
     @JsonProperty("status")
     private int status;
