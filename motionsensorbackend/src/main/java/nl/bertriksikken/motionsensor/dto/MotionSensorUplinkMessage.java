@@ -38,8 +38,8 @@ public final class MotionSensorUplinkMessage {
         try {
             boolean occupied = (bb.get() != 0);
             double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
-            int temperature = bb.get() - 32;
-            int time = bb.getShort();
+            int temperature = (bb.get() & 0x7F) - 32;
+            int time = bb.getShort() & 0xFFFF;
             int count = bb.get() & 0xFF;
             count += (bb.get() & 0xFF) << 8;
             count += (bb.get() & 0xFF) << 16;

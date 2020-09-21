@@ -40,12 +40,12 @@ public final class HumiditySensorUplinkMessage {
     public static HumiditySensorUplinkMessage decode(byte[] data) throws DecodeException {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         try {
-            int status = bb.get();
+            int status = bb.get() & 0xFF;
             double voltage = (25.0 + (bb.get() & 0x0F)) / 10.0;
             int temperature = (bb.get() & 0x7F) - 32;
             int humidity = bb.get() & 0x7F;
-            int co2 = bb.getShort();
-            int voc = bb.getShort();
+            int co2 = bb.getShort() & 0xFFFF;
+            int voc = bb.getShort() & 0xFFFF;
             return new HumiditySensorUplinkMessage(status, voltage, temperature, humidity, co2, voc);
         } catch (BufferUnderflowException e) {
             throw new DecodeException(e);
