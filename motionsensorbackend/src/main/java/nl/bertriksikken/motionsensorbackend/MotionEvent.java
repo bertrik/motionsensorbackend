@@ -10,13 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({ "datetime", "seqnr", "occupied", "battery", "temperature", "count", "lastevent" })
-public final class MotionEvent {
-
-    @JsonProperty("datetime")
-    private OffsetDateTime dateTime;
-
-    @JsonProperty("seqnr")
-    private int sequenceNr;
+public final class MotionEvent extends BaseEvent {
 
     @JsonProperty("occupied")
     private boolean occupied;
@@ -35,17 +29,12 @@ public final class MotionEvent {
 
     public MotionEvent(Instant instant, int sequenceNr, boolean occupied, double voltage, double temperature, int count,
             Instant lastEvent) {
-        this.dateTime = OffsetDateTime.ofInstant(instant, ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
-        this.sequenceNr = sequenceNr;
+        super("TBMS", instant, sequenceNr);
         this.occupied = occupied;
         this.voltage = voltage;
         this.temperature = temperature;
         this.count = count;
         this.lastEvent = OffsetDateTime.ofInstant(lastEvent, ZoneOffset.UTC).truncatedTo(ChronoUnit.MINUTES);
-    }
-
-    public OffsetDateTime getDateTime() {
-        return dateTime;
     }
 
     public boolean isOccupied() {
@@ -70,8 +59,8 @@ public final class MotionEvent {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "{time=%s,occupied=%s,voltage=%.2f,temperature=%.0f,count=%d}", dateTime,
-                occupied, voltage, temperature, count);
+        return String.format(Locale.ROOT, "{time=%s,seq=%d,occupied=%s,voltage=%.2f,temperature=%.0f,count=%d}",
+                getDateTime(), getSequenceNr(), occupied, voltage, temperature, count);
     }
 
 }

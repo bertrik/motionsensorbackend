@@ -19,7 +19,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public final class MotionEventWriter {
     
     private final File baseFolder;
-    private final CsvSchema baseSchema;
     private final CsvMapper mapper;
 
     public MotionEventWriter(File folder) {
@@ -28,10 +27,9 @@ public final class MotionEventWriter {
         mapper = new CsvMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        baseSchema = mapper.schemaFor(MotionEvent.class);
     }
 
-    public File write(String deviceId, MotionEvent event) throws IOException {
+    public File write(String deviceId, BaseEvent event) throws IOException {
         // create folder
         File folder = new File(baseFolder, deviceId);
         if (!folder.exists()) {
@@ -47,7 +45,8 @@ public final class MotionEventWriter {
 
         // append data
         boolean append = file.exists();
-        CsvSchema schema = append ? baseSchema.withoutHeader() : baseSchema.withHeader();
+        CsvSchema schema = mapper.schemaFor(event.getClass());
+        schema = append ? schema.withoutHeader() : schema.withHeader();
         ObjectWriter writer = mapper.writer(schema);
         try (FileOutputStream fos = new FileOutputStream(file, append)) {
             writer.writeValue(fos, event);
