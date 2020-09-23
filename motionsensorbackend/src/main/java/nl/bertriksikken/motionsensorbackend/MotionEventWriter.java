@@ -17,7 +17,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * Events are written into a sub-directory for each device and grouped by month.
  */
 public final class MotionEventWriter {
-    
+
     private final File baseFolder;
     private final CsvMapper mapper;
 
@@ -37,10 +37,11 @@ public final class MotionEventWriter {
                 throw new IOException("Failed to create " + folder.getAbsolutePath());
             }
         }
-        
+
         // create file per month
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
-        String filename = String.format(Locale.ROOT, "%s.csv", formatter.format(event.getDateTime()));
+        String filename = String.format(Locale.ROOT, "%s_%s_%s.csv", event.getEventType(), deviceId,
+                formatter.format(event.getDateTime()));
         File file = new File(folder, filename);
 
         // append data
