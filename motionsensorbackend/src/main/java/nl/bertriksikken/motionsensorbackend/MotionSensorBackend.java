@@ -3,8 +3,6 @@ package nl.bertriksikken.motionsensorbackend;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -77,21 +75,19 @@ public final class MotionSensorBackend {
         byte[] payload = uplink.getRawPayload();
         if (payload != null) {
             MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
-            Instant time = uplink.getTime();
-            Instant lastEvent = time.minus(message.getTime(), ChronoUnit.MINUTES);
-            MotionEvent event = new MotionEvent(time, uplink.getCounter(), message.isOccupied(), message.getVoltage(),
-                    message.getTemperature(), message.getCount(), lastEvent);
+            MotionEvent event = new MotionEvent(uplink.getTime(), uplink.getCounter(), message.isOccupied(),
+                    message.getCount(), message.getTime(), message.getTemperature(), message.getVoltage());
             csvWriter.write(uplink.getHardwareSerial(), event);
         }
     }
 
-    private void handleHumiditySensor(TtnUplinkMessage uplink) throws DecodeException {
+    private void handleHumiditySensor(TtnUplinkMessage uplink) throws DecodeException, IOException {
         byte[] payload = uplink.getRawPayload();
         if (payload != null) {
             HumiditySensorUplinkMessage message = HumiditySensorUplinkMessage.decode(payload);
-            LOG.info("Discarding message: {}", message);
-        } else {
-            LOG.warn("payload empty or too small");
+            TempHumidityEvent event = new TempHumidityEvent(uplink.getTime(), uplink.getCounter(),
+                    message.getHumidity(), message.getTemperature(), message.getVoltage());
+            csvWriter.write(uplink.getHardwareSerial(), event);
         }
     }
 

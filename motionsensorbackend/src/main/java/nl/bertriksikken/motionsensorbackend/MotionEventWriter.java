@@ -41,7 +41,7 @@ public final class MotionEventWriter {
         // create file per month
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
         String filename = String.format(Locale.ROOT, "%s_%s_%s.csv", event.getEventType(), deviceId,
-                formatter.format(event.getDateTime()));
+                formatter.format(event.getDate()));
         File file = new File(folder, filename);
 
         // append data
