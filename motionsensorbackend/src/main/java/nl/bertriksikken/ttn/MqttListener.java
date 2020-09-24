@@ -121,8 +121,8 @@ public final class MqttListener {
                 TtnUplinkMessage uplink = mapper.readValue(mqttMessage.getPayload(), TtnUplinkMessage.class);
                 listener.messageReceived(topic, uplink);
             } catch (Exception e) {
-                LOG.trace("Caught exception", e);
-                LOG.error("Caught exception in MQTT listener: {}", e.getMessage());
+                LOG.trace("Caught Exception", e);
+                LOG.error("Caught Exception in MQTT listener: {}", e.getMessage());
             }
         }
 
@@ -137,7 +137,8 @@ public final class MqttListener {
             try {
                 client.subscribe(topic);
             } catch (MqttException e) {
-                LOG.error("Caught exception while subscribing!");
+                LOG.trace("Caught MqttException", e);
+                LOG.error("Caught MqttException while subscribing: {}", e.getMessage());
             }
         }
     }
