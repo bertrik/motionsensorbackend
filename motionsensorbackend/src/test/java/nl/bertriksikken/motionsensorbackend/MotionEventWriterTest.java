@@ -43,9 +43,9 @@ public final class MotionEventWriterTest {
     public void testWriteHumidity() throws IOException {
         // temp/humidity events
         Instant now = Instant.now();
-        TempHumidityEvent event3 = new TempHumidityEvent(now, 16, 22.3, 50, 3.5);
+        TempHumidityEvent event3 = new TempHumidityEvent(now, 16, 50, 22.3, 3.5);
         now = now.plusSeconds(10);
-        TempHumidityEvent event4 = new TempHumidityEvent(now, 17, 22.3, 51, 3.6);
+        TempHumidityEvent event4 = new TempHumidityEvent(now, 17, 51, 22.3, 3.6);
 
         writer.write("device", event3);
         File file = writer.write("device", event4);
