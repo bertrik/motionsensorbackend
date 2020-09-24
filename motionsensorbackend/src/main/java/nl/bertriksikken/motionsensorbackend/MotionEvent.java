@@ -22,16 +22,16 @@ public final class MotionEvent extends BaseEvent {
     private double temperature;
 
     @JsonProperty("battery")
-    private double voltage;
+    private double battery;
 
     public MotionEvent(Instant instant, int sequenceNr, boolean occupied, int count, int minutes, double temperature,
-            double voltage) {
+            double battery) {
         super("TBMS", instant, sequenceNr);
         this.occupied = occupied ? 1 : 0;
         this.count = count;
         this.minutes = minutes;
         this.temperature = temperature;
-        this.voltage = voltage;
+        this.battery = battery;
     }
 
     public int getOccupied() {
@@ -46,8 +46,8 @@ public final class MotionEvent extends BaseEvent {
         return temperature;
     }
 
-    public double getVoltage() {
-        return voltage;
+    public double getBattery() {
+        return battery;
     }
 
     public int getMinutes() {
@@ -57,7 +57,7 @@ public final class MotionEvent extends BaseEvent {
     @Override
     public String toString() {
         return String.format(Locale.ROOT, "{date=%s,time=%s,seqnr=%d,occ=%s,count=%d,minutes=%d,temp=%.0f,batt=%.1f}",
-                getDate(), getTime(), getSequenceNr(), occupied, count, minutes, temperature, voltage);
+                getDate(), getTime(), getSequenceNr(), occupied, count, minutes, temperature, battery);
     }
 
 }

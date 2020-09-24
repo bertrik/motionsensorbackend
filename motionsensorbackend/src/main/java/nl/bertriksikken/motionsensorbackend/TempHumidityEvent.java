@@ -13,13 +13,13 @@ public final class TempHumidityEvent extends BaseEvent {
     @JsonProperty("temperature")
     private final double temperature;
     @JsonProperty("battery")
-    private double voltage;
+    private double battery;
 
-    public TempHumidityEvent(Instant instant, int sequenceNr, double temperature, int humidity, double voltage) {
+    public TempHumidityEvent(Instant instant, int sequenceNr, double temperature, int humidity, double battery) {
         super("TBHV", instant, sequenceNr);
-        this.humidity = humidity;
         this.temperature = temperature;
-        this.voltage = voltage;
+        this.humidity = humidity;
+        this.battery = battery;
     }
     
 }

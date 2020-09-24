@@ -31,7 +31,6 @@ public final class MotionEventWriterTest {
         MotionEvent event1 = new MotionEvent(now, 11, true, 1, 0, 22.1, 3.6);
         now = now.plusSeconds(60);
         MotionEvent event2 = new MotionEvent(now, 12, false, 2, 1, 22.1, 3.5);
-        now = now.plusSeconds(10);
 
         File file = writer.write("device", event1);
         writer.write("device", event2);
