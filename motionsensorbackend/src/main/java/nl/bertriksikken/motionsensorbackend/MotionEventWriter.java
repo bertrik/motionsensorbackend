@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -17,6 +20,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * Events are written into a sub-directory for each device and grouped by month.
  */
 public final class MotionEventWriter {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(MotionEventWriter.class);
 
     private final File baseFolder;
     private final CsvMapper mapper;
@@ -50,6 +55,8 @@ public final class MotionEventWriter {
         schema = append ? schema.withoutHeader() : schema.withHeader();
         ObjectWriter writer = mapper.writer(schema);
         try (FileOutputStream fos = new FileOutputStream(file, append)) {
+            String value = writer.writeValueAsString(event);
+            LOG.info("Writing {} event for {}: {}", event.getEventType(), deviceId, value);
             writer.writeValue(fos, event);
         }
         return file;
