@@ -47,8 +47,8 @@ public final class MotionEventWriter {
         schema = append ? schema.withoutHeader() : schema.withHeader();
         ObjectWriter writer = mapper.writer(schema);
         try (FileOutputStream fos = new FileOutputStream(file, append)) {
-            String value = writer.writeValueAsString(event);
-            LOG.info("Writing {} event for {}: {}", event.getEventType(), deviceId, value);
+            String value = writer.writeValueAsString(event).trim();
+            LOG.info("Writing to {}: {}", filename, value);
             writer.writeValue(fos, event);
         }
         return file;

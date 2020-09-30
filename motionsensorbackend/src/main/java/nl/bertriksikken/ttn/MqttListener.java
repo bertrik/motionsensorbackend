@@ -1,6 +1,11 @@
 package nl.bertriksikken.ttn;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
@@ -31,6 +36,7 @@ public final class MqttListener {
     private static final ObjectMapper mapper = new ObjectMapper();
     private final MqttClient mqttClient;
     private final MqttConnectOptions options;
+    private final File logPath;
 
     /**
      * Constructor.
@@ -39,8 +45,9 @@ public final class MqttListener {
      * @param url      the URL of the MQTT server
      * @param appId    the name of the TTN application
      * @param appKey   the key of the TTN application
+     * @param logPath  the path to store log data
      */
-    public MqttListener(String url, String appId, String appKey) {
+    public MqttListener(String url, String appId, String appKey, File logPath) {
         LOG.info("Creating client for MQTT server '{}' for app '{}'", url, appId);
         try {
             this.mqttClient = new MqttClient(url, MqttClient.generateClientId(), new MemoryPersistence());
@@ -52,6 +59,8 @@ public final class MqttListener {
         options.setUserName(appId);
         options.setPassword(appKey.toCharArray());
         options.setAutomaticReconnect(true);
+        
+        this.logPath = logPath;
     }
 
     /**
@@ -60,7 +69,7 @@ public final class MqttListener {
     public void setUplinkCallback(IMessageReceived callback) {
         mqttClient.setCallback(new MqttCallbackHandler(mqttClient, "+/devices/+/up", callback));
     }
-    
+
     /**
      * Starts this module.
      * 
@@ -82,20 +91,35 @@ public final class MqttListener {
         }
     }
 
-    public void sendDownlink(String appId, String devId, TtnDownlinkMessage downlink) throws MqttException, JsonProcessingException {
+    public void sendDownlink(String appId, String devId, TtnDownlinkMessage downlink)
+            throws MqttException, JsonProcessingException {
         String message = mapper.writeValueAsString(downlink);
-        
+
         String topic = appId + "/devices/" + devId + "/down";
-        MqttMessage mqttMessage = new MqttMessage(message.getBytes(Charset.forName("UTF-8")));
+        MqttMessage mqttMessage = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
         LOG.info("Sending downlink to {}: {}", topic, message);
+        log("mqtt_", topic, message);
         mqttClient.publish(topic, mqttMessage);
     }
-    
+
+    private void log(String prefix, String topic, String payload) {
+        if (logPath != null) {
+            String fileName = prefix + String.join("_", topic.split("/")) + ".log";
+            File file = new File(logPath, fileName);
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+                writer.append(payload);
+                writer.newLine();
+            } catch (IOException e) {
+                LOG.warn("Failed to log to {}", file.getAbsolutePath());
+            }
+        }
+    }
+
     /**
      * MQTT callback handler, (re-)subscribes to the topic and forwards incoming
      * messages.
      */
-    private static final class MqttCallbackHandler implements MqttCallbackExtended {
+    private final class MqttCallbackHandler implements MqttCallbackExtended {
 
         private final MqttClient client;
         private final String topic;
@@ -118,7 +142,9 @@ public final class MqttListener {
 
             // notify our listener, in an exception safe manner
             try {
-                TtnUplinkMessage uplink = mapper.readValue(mqttMessage.getPayload(), TtnUplinkMessage.class);
+                String payload = new String(mqttMessage.getPayload(), StandardCharsets.UTF_8);
+                log("mqtt_", topic, payload);
+                TtnUplinkMessage uplink = mapper.readValue(payload, TtnUplinkMessage.class);
                 listener.messageReceived(topic, uplink);
             } catch (Exception e) {
                 LOG.trace("Caught Exception", e);

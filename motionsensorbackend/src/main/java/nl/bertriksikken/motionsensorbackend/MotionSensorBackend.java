@@ -40,10 +40,11 @@ public final class MotionSensorBackend {
         TtnConfig ttnAppConfig = config.getTtnConfig();
         LOG.info("Adding MQTT listener for TTN application '{}'", ttnAppConfig.getName());
 
-        mqttListener = new MqttListener(ttnAppConfig.getUrl(), ttnAppConfig.getName(), ttnAppConfig.getKey());
+        File storageFolder = config.getStorageFolder();
+        mqttListener = new MqttListener(ttnAppConfig.getUrl(), ttnAppConfig.getName(), ttnAppConfig.getKey(),
+                storageFolder);
         mqttListener.setUplinkCallback(this::messageReceived);
-
-        csvWriter = new MotionEventWriter(config.getStorageFolder());
+        csvWriter = new MotionEventWriter(storageFolder);
     }
 
     // package-private for testing
