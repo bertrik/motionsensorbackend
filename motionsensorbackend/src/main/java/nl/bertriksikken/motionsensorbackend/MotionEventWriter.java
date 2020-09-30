@@ -35,19 +35,11 @@ public final class MotionEventWriter {
     }
 
     public File write(String deviceId, BaseEvent event) throws IOException {
-        // create folder
-        File folder = new File(baseFolder, deviceId);
-        if (!folder.exists()) {
-            if (!folder.mkdirs()) {
-                throw new IOException("Failed to create " + folder.getAbsolutePath());
-            }
-        }
-
         // create file per month
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
         String filename = String.format(Locale.ROOT, "%s_%s_%s.csv", event.getEventType(), deviceId,
                 formatter.format(event.getDate()));
-        File file = new File(folder, filename);
+        File file = new File(baseFolder, filename);
 
         // append data
         boolean append = file.exists();
