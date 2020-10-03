@@ -106,7 +106,7 @@ public final class MqttListener {
         if (logPath != null) {
             String fileName = prefix + String.join("_", topic.split("/")) + ".log";
             File file = new File(logPath, fileName);
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8, true))) {
                 writer.append(payload);
                 writer.newLine();
             } catch (IOException e) {
