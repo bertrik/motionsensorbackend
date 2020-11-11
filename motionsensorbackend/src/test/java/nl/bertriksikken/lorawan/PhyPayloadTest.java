@@ -9,9 +9,10 @@ public final class PhyPayloadTest {
 
     @Test
     public void testDecode() {
-        // decode PHY payload
         String base64 = "YGohASaFGQADUf8AAV5zA3Q=";
         byte[] data = Base64.getDecoder().decode(base64);
+
+        // decode PHY payload
         PhyPayload phyPayload = PhyPayload.decode(data);
         Assert.assertEquals(0x60, phyPayload.getMhdr());
         Assert.assertNotNull(phyPayload.getMacPayload());
@@ -20,11 +21,15 @@ public final class PhyPayloadTest {
         // decode MAC payload
         MacPayload macPayload = MacPayload.decode(phyPayload.getMacPayload());
         Assert.assertEquals(0x2601216A, macPayload.getDevAddr());
-        Assert.assertEquals(0x85, macPayload.getFctrl());
+        Assert.assertEquals((byte)0x85, macPayload.getFctrl());
         Assert.assertEquals(25, macPayload.getFcnt());
 
+        // decode Fctrl
+        FCtrl fctrl = FCtrl.decode(macPayload.getFctrl());
+        System.out.println("FCtrl = " + fctrl);
+        
         // decode FOPTS
-        FOpts fopts = FOpts.decode(macPayload.getFctrl(), macPayload.getFOpts());
+        FOpts fopts = FOpts.decode(macPayload.getFOpts());
         System.out.println(fopts);
     }
     

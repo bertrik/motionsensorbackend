@@ -16,12 +16,7 @@ public final class FOpts {
         macCommands.add(macCommand);
     }
     
-    public static FOpts decode(int fctrl, byte[] data) {
-        int foptsLen = fctrl & 0xF;
-        if (foptsLen != data.length) {
-            throw new IllegalArgumentException("FOptsLen mismatch");
-        }
-
+    public static FOpts decode(byte[] data) {
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         FOpts fOpts = new FOpts();
         while (bb.hasRemaining()) {

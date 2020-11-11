@@ -6,11 +6,11 @@ import java.nio.ByteOrder;
 public final class MacPayload {
     
     private final int devAddr;
-    private final int fctrl;
+    private final byte fctrl;
     private final int fcnt;
     private final byte[] fopts;
 
-    public MacPayload(int devAddr, int fctrl, int fcnt, byte[] fopts) {
+    public MacPayload(int devAddr, byte fctrl, int fcnt, byte[] fopts) {
         this.devAddr = devAddr;
         this.fctrl = fctrl;
         this.fcnt = fcnt;
@@ -23,7 +23,7 @@ public final class MacPayload {
         }
         ByteBuffer bb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         int devAddr = bb.getInt() & 0xFFFFFFFF;
-        int fctrl = bb.get() & 0xFF;
+        byte fctrl = (byte) (bb.get() & 0xFF);
         int fcnt = bb.getShort() & 0xFFFF;
         byte[] fopts = new byte[data.length - 7];
         bb.get(fopts);
@@ -34,7 +34,7 @@ public final class MacPayload {
         return devAddr;
     }
 
-    public int getFctrl() {
+    public byte getFctrl() {
         return fctrl;
     }
 
