@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -17,11 +16,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import nl.bertriksikken.ttn.dto.TtnDownlinkMessage;
-import nl.bertriksikken.ttn.dto.TtnUplinkMessage;
+import nl.bertriksikken.ttn.dto.Ttnv3UplinkMessage;
 
 /**
  * Listener process for receiving data from MQTT.
@@ -66,7 +63,7 @@ public final class MqttListener {
      * @param callback the uplink callback
      */
     public void setUplinkCallback(IMessageReceived callback) {
-        mqttClient.setCallback(new MqttCallbackHandler(mqttClient, "+/devices/+/up", callback));
+        mqttClient.setCallback(new MqttCallbackHandler(mqttClient, "v3/+/devices/+/up", callback));
     }
 
     /**
@@ -80,6 +77,9 @@ public final class MqttListener {
         mqttClient.connect(options);
     }
 
+    /**
+     * Stops this module.
+     */
     public void stop() {
         LOG.info("Stopping MQTT listener '{}'", options.getUserName());
         try {
@@ -88,17 +88,6 @@ public final class MqttListener {
             // don't care, just log
             LOG.warn("Caught exception on disconnect: {}", e.getMessage());
         }
-    }
-
-    public void sendDownlink(String appId, String devId, TtnDownlinkMessage downlink)
-            throws MqttException, JsonProcessingException {
-        String message = mapper.writeValueAsString(downlink);
-
-        String topic = appId + "/devices/" + devId + "/down";
-        MqttMessage mqttMessage = new MqttMessage(message.getBytes(StandardCharsets.UTF_8));
-        LOG.info("Sending downlink to {}: {}", topic, message);
-        log("mqtt_", topic, message);
-        mqttClient.publish(topic, mqttMessage);
     }
 
     private void log(String prefix, String topic, String payload) {
@@ -143,8 +132,10 @@ public final class MqttListener {
             try {
                 String payload = new String(mqttMessage.getPayload(), StandardCharsets.UTF_8);
                 log("mqtt_", topic, payload);
-                TtnUplinkMessage uplink = mapper.readValue(payload, TtnUplinkMessage.class);
-                listener.messageReceived(topic, uplink);
+                Ttnv3UplinkMessage uplinkV3 = mapper.readValue(payload, Ttnv3UplinkMessage.class);
+                TtnUplinkMessage uplink = uplinkV3.toTtnUplinkMessage();
+
+                listener.messageReceived(uplink);
             } catch (Exception e) {
                 LOG.trace("Caught Exception", e);
                 LOG.error("Caught Exception in MQTT listener: {}", e.getMessage());

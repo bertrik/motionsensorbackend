@@ -3,6 +3,13 @@ package nl.bertriksikken.motionsensorbackend;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -15,17 +22,27 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import nl.bertriksikken.motionsensor.dto.DecodeException;
 import nl.bertriksikken.motionsensor.dto.HumiditySensorUplinkMessage;
 import nl.bertriksikken.motionsensor.dto.MotionSensorUplinkMessage;
+import nl.bertriksikken.mydevices.IMyDevicesRestApi;
+import nl.bertriksikken.mydevices.MyDevicesConfig;
+import nl.bertriksikken.mydevices.MyDevicesHttpUploader;
+import nl.bertriksikken.mydevices.dto.MyDevicesMessage;
 import nl.bertriksikken.ttn.MqttListener;
 import nl.bertriksikken.ttn.TtnConfig;
-import nl.bertriksikken.ttn.dto.TtnUplinkMessage;
+import nl.bertriksikken.ttn.TtnUplinkMessage;
+import nl.bertriksikken.ttnv3.enddevice.EndDevice;
+import nl.bertriksikken.ttnv3.enddevice.EndDeviceRegistry;
+import nl.bertriksikken.ttnv3.enddevice.IEndDeviceRegistryRestApi;
 
 public final class MotionSensorBackend {
 
     private static final Logger LOG = LoggerFactory.getLogger(MotionSensorBackend.class);
     private static final String CONFIG_FILE = "motionsensorbackend.yaml";
 
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private final MqttListener mqttListener;
     private final MotionEventWriter csvWriter;
+    private final MyDevicesHttpUploader myDevicesUploader;
+    private final EndDeviceRegistry endDeviceRegistry;
 
     public static void main(String[] args) throws IOException, MqttException {
         PropertyConfigurator.configure("log4j.properties");
@@ -37,22 +54,31 @@ public final class MotionSensorBackend {
     }
 
     MotionSensorBackend(MotionSensorBackendConfig config) {
-        TtnConfig ttnAppConfig = config.getTtnConfig();
-        LOG.info("Adding MQTT listener for TTN application '{}'", ttnAppConfig.getName());
+        TtnConfig ttnConfig = config.getTtnConfig();
+        LOG.info("Adding MQTT listener for TTN application '{}'", ttnConfig.getName());
 
         File storageFolder = config.getStorageFolder();
-        mqttListener = new MqttListener(ttnAppConfig.getUrl(), ttnAppConfig.getName(), ttnAppConfig.getKey(),
-                storageFolder);
+        mqttListener = new MqttListener(ttnConfig.getMqttUrl(), ttnConfig.getName(), ttnConfig.getKey(), storageFolder);
         mqttListener.setUplinkCallback(this::messageReceived);
         csvWriter = new MotionEventWriter(storageFolder);
+
+        MyDevicesConfig myDevicesConfig = config.getMyDevicesConfig();
+        IMyDevicesRestApi myDevicesRestApi = MyDevicesHttpUploader.newRestClient(myDevicesConfig.getUrl(),
+                Duration.ofSeconds(myDevicesConfig.getTimeoutSec()));
+        myDevicesUploader = new MyDevicesHttpUploader(myDevicesRestApi);
+
+        IEndDeviceRegistryRestApi restApi = EndDeviceRegistry.newRestClient(ttnConfig.getIdentityServerUrl(),
+                Duration.ofSeconds(ttnConfig.getIdentityServerTimeout()));
+        String appName = ttnConfig.getName();
+        endDeviceRegistry = new EndDeviceRegistry(restApi, appName, ttnConfig.getKey());
     }
 
     // package-private for testing
-    void messageReceived(String topic, TtnUplinkMessage uplink) {
-        int port = uplink.getPort();
-        LOG.info("Received on port {}: '{}'", port, uplink);
+    void messageReceived(TtnUplinkMessage uplink) {
+        LOG.info("Received '{}'", uplink);
 
         // decode JSON
+        int port = uplink.getPort();
         try {
             switch (port) {
             case MotionSensorUplinkMessage.PORT:
@@ -62,7 +88,7 @@ public final class MotionSensorBackend {
                 handleHumiditySensor(uplink);
                 break;
             default:
-                LOG.warn("Unhandled message on port: {}", port);
+                LOG.warn("Unhandled message");
                 break;
             }
         } catch (DecodeException e) {
@@ -75,20 +101,36 @@ public final class MotionSensorBackend {
     private void handleMotionSensor(TtnUplinkMessage uplink) throws IOException, DecodeException {
         byte[] payload = uplink.getRawPayload();
         if (payload != null) {
+            LoraParams loraParams = new LoraParams(uplink.getTime(), uplink.getCounter(), uplink.getRSSI(),
+                    uplink.getSNR(), uplink.getSF());
             MotionSensorUplinkMessage message = MotionSensorUplinkMessage.decode(payload);
-            MotionEvent event = new MotionEvent(uplink.getTime(), uplink.getCounter(), message.isOccupied(),
-                    message.getCount(), message.getTime(), message.getTemperature(), message.getVoltage());
-            csvWriter.write(uplink.getHardwareSerial(), event);
+            MotionEvent event = new MotionEvent(loraParams, message.isOccupied(), message.getCount(), message.getTime(),
+                    message.getTemperature(), message.getVoltage());
+
+            // write to CSV
+            csvWriter.write(uplink.getDeviceEui(), event);
+
+            // schedule for upload to mydevices
+            MyDevicesMessage myDevicesMessage = MyDevicesMessage.fromMotionEvent(event);
+            myDevicesUploader.scheduleUpload(uplink.getDeviceEui(), myDevicesMessage);
         }
     }
 
     private void handleHumiditySensor(TtnUplinkMessage uplink) throws DecodeException, IOException {
         byte[] payload = uplink.getRawPayload();
         if (payload != null) {
+            LoraParams loraParams = new LoraParams(uplink.getTime(), uplink.getCounter(), uplink.getRSSI(),
+                    uplink.getSNR(), uplink.getSF());
             HumiditySensorUplinkMessage message = HumiditySensorUplinkMessage.decode(payload);
-            TempHumidityEvent event = new TempHumidityEvent(uplink.getTime(), uplink.getCounter(),
-                    message.getHumidity(), message.getTemperature(), message.getVoltage());
-            csvWriter.write(uplink.getHardwareSerial(), event);
+            TempHumidityEvent event = new TempHumidityEvent(loraParams, message.getHumidity(), message.getTemperature(),
+                    message.getVoltage());
+
+            // write to CSV
+            csvWriter.write(uplink.getDeviceEui(), event);
+
+            // schedule for upload to mydevices
+            MyDevicesMessage myDevicesMessage = MyDevicesMessage.fromHumidityEvent(event);
+            myDevicesUploader.scheduleUpload(uplink.getDeviceEui(), myDevicesMessage);
         }
     }
 
@@ -99,6 +141,9 @@ public final class MotionSensorBackend {
      */
     private void start() throws MqttException {
         LOG.info("Starting MotionSensorBackend application");
+
+        // schedule task to update attributes
+        executor.scheduleAtFixedRate(this::updateAttributes, 0, 60, TimeUnit.MINUTES);
 
         // start sub-modules
         mqttListener.start();
@@ -115,8 +160,26 @@ public final class MotionSensorBackend {
         LOG.info("Stopping MotionSensorBackend application");
 
         mqttListener.stop();
+        executor.shutdown();
 
         LOG.info("Stopped MotionSensorBackend application");
+    }
+
+    // retrieves application attributes and notifies each interested component
+    private void updateAttributes() {
+        // fetch all attributes
+        Map<String, AttributeMap> attributes = new HashMap<>();
+        LOG.info("Fetching TTNv3 application attributes");
+        try {
+            List<EndDevice> devices = endDeviceRegistry.listEndDevices();
+            devices.forEach(d -> attributes.put(d.getIds().getDevEui(), new AttributeMap(d.getAttributes())));
+        } catch (IOException e) {
+            LOG.warn("Error getting opensense map ids for {}", e.getMessage());
+        }
+        LOG.info("Fetching TTNv3 application attributes done");
+
+        // notify all uploaders
+        myDevicesUploader.processAttributes(attributes);
     }
 
     private static MotionSensorBackendConfig readConfig(File file) throws IOException {

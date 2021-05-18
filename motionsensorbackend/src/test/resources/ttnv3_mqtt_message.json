@@ -1,0 +1,81 @@
+{
+  "end_device_ids": {
+    "device_id": "pirbertrik",
+    "application_ids": {
+      "application_id": "vleermuispir"
+    },
+    "dev_eui": "58A0CB000011D34E",
+    "join_eui": "58A0CB0001500000",
+    "dev_addr": "260B1C4D"
+  },
+  "correlation_ids": [
+    "ns:uplink:01F5RPQJD5Q31MZMSB6J0GGZVK",
+    "pba:conn:up:01F4S0S1VDKJV6PHSBWY4PYEWG",
+    "pba:uplink:01F5RPQJ9Y0MFJDCYDRZFD0Q9Z",
+    "rpc:/ttn.lorawan.v3.GsNs/HandleUplink:01F5RPQJD5AS58DRJ3Q17P2TFG"
+  ],
+  "received_at": "2021-02-04T22:12:45.761243856Z",
+  "uplink_message": {
+    "session_key_id": "AXew1d5DrWDF3/etiI1XEA==",
+    "f_port": 102,
+    "f_cnt": 3779,
+    "frm_payload": "tmPJtgxkO9Q=",
+    "rx_metadata": [
+      {
+        "gateway_ids": {
+          "gateway_id": "packetbroker"
+        },
+        "packet_broker": {
+          "message_id": "01F5RPQJ9Y0MFJDCYDRZFD0Q9Z",
+          "forwarder_net_id": "000013",
+          "forwarder_tenant_id": "ttn",
+          "forwarder_cluster_id": "ttn-v2-eu-1",
+          "home_network_net_id": "000013",
+          "home_network_tenant_id": "ttn",
+          "home_network_cluster_id": "ttn-eu1",
+          "hops": [
+            {
+              "received_at": "2021-05-15T19:05:59.870044401Z",
+              "sender_address": "52.169.73.251",
+              "receiver_name": "router-dataplane-57d9d9bddd-f7h6k",
+              "receiver_agent": "pbdataplane/1.5.2 go/1.16.2 linux/amd64"
+            },
+            {
+              "received_at": "2021-05-15T19:05:59.870529244Z",
+              "sender_name": "router-dataplane-57d9d9bddd-f7h6k",
+              "sender_address": "forwarder_uplink",
+              "receiver_name": "router-5b5dc54cf7-mwf8m",
+              "receiver_agent": "pbrouter/1.5.2 go/1.16.2 linux/amd64"
+            },
+            {
+              "received_at": "2021-05-15T19:05:59.871373177Z",
+              "sender_name": "router-5b5dc54cf7-mwf8m",
+              "sender_address": "deliver.000013_ttn_ttn-eu1.uplink",
+              "receiver_name": "router-dataplane-57d9d9bddd-dsrjj",
+              "receiver_agent": "pbdataplane/1.5.2 go/1.16.2 linux/amd64"
+            }
+          ]
+        },
+        "time": "2021-05-15T19:05:59.882399082Z",
+        "rssi": -42,
+        "channel_rssi": -42,
+        "snr": 10,
+        "uplink_token": "eyJnIjoiWlhsS2FHSkhZMmxQYVVwQ1RWUkpORkl3VGs1VE1XTnBURU5LYkdKdFRXbFBhVXBDVFZSSk5GSXdUazVKYVhkcFlWaFphVTlwU2xSWGFtUlhVa1pvZWxwWWNESk5SVFZSVTJwSmRFbHBkMmxrUjBadVNXcHZhV1JGVW1sbFJ6VkxWVVJrV1dORmNEUlJiRUUxWTJ0MGVHVnVWbmhhZVVvNUxteDVhMGxFZFc5c05GTnNZMWQ1VTFRelN5MDJaMmN1Y0ZCRVJFMTRhV1ZMYmpWU2JrSm5kUzVoWWtjMlQwVTBOMGRxY25aU1YyMVFNVmwzYWtKaWJXNW1ObGMwYW1GTFJsRktabEZMWjFvMlRISklWWGxEUlhsMVZtRkVkM2d5UXkxT2RrdEZaRlpLUkRBNU1WTjBlVUk0T1dac2JHVkZSVGRVYmxOM1J6SjRNR2RUTlVWbldIbGxMVFp5ZWpaR1ltVkVkRnAzU1hoSVQwdFBTM0JZTlZwMGVVMVRURTkyWkdjM2RteEJibXAyU2t4Vk9HNDRjWG94VEdVd2RtUjZWbUY2UjFaUFJqUmZTMlpNTTJoQ1VrdzNURVZPTGprNVdVZFhVeTFQZW1KSVdYVjBjbVo2WjNNNU9IYz0iLCJhIjp7ImZuaWQiOiIwMDAwMTMiLCJmdGlkIjoidHRuIiwiZmNpZCI6InR0bi12Mi1ldS0xIn19"
+      }
+    ],
+    "settings": {
+      "data_rate": {
+        "lora": {
+          "bandwidth": 125000,
+          "spreading_factor": 7
+        }
+      },
+      "data_rate_index": 5,
+      "coding_rate": "4/5",
+      "frequency": "868100000"
+    },
+    "received_at": "2021-05-15T19:05:59.973535560Z",
+    "consumed_airtime": "0.056576s"
+  }
+}
+

@@ -1,12 +1,14 @@
 package nl.bertriksikken.motionsensorbackend;
 
-import java.time.Instant;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({ "date", "time", "seqnr", "occupied", "count", "minutes", "temperature", "battery"})
+/**
+ * Representation of a motion event that can be serialized to CSV.
+ */
+@JsonPropertyOrder({ "date", "time", "fcnt", "rssi", "snr", "sf", "occupied", "count", "minutes", "temp", "battery" })
 public final class MotionEvent extends BaseEvent {
 
     @JsonProperty("occupied")
@@ -18,15 +20,15 @@ public final class MotionEvent extends BaseEvent {
     @JsonProperty("minutes")
     private int minutes;
 
-    @JsonProperty("temperature")
+    @JsonProperty("temp")
     private double temperature;
 
     @JsonProperty("battery")
     private double battery;
 
-    public MotionEvent(Instant instant, int sequenceNr, boolean occupied, int count, int minutes, double temperature,
+    public MotionEvent(LoraParams loraParams, boolean occupied, int count, int minutes, double temperature,
             double battery) {
-        super("TBMS", instant, sequenceNr);
+        super("TBMS", loraParams);
         this.occupied = occupied ? 1 : 0;
         this.count = count;
         this.minutes = minutes;
@@ -56,8 +58,8 @@ public final class MotionEvent extends BaseEvent {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "{date=%s,time=%s,seqnr=%d,occ=%s,count=%d,minutes=%d,temp=%.0f,batt=%.1f}",
-                getDate(), getTime(), getSequenceNr(), occupied, count, minutes, temperature, battery);
+        return String.format(Locale.ROOT, "{date=%s,time=%s,fcnt=%d,occ=%s,count=%d,minutes=%d,temp=%.0f,batt=%.1f}",
+                getDate(), getTime(), getFcnt(), occupied, count, minutes, temperature, battery);
     }
 
 }

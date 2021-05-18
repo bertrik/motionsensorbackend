@@ -28,9 +28,13 @@ public final class MotionEventWriterTest {
     public void testWriteMotion() throws IOException {
         // motion events
         Instant now = Instant.now();
-        MotionEvent event1 = new MotionEvent(now, 11, true, 1, 0, 22.1, 3.6);
+        LoraParams loraParams1 = new LoraParams(now, 11, -50, 10, 7);
+        MotionEvent event1 = new MotionEvent(loraParams1, true, 1, 0, 22.1, 3.6);
+        Assert.assertNotNull(event1.toString());
         now = now.plusSeconds(60);
-        MotionEvent event2 = new MotionEvent(now, 12, false, 2, 1, 22.1, 3.5);
+        LoraParams loraParams2 = new LoraParams(now, 12, -50, 10, 7);
+        MotionEvent event2 = new MotionEvent(loraParams2, false, 2, 1, 22.1, 3.5);
+        Assert.assertNotNull(event2.toString());
 
         File file = writer.write("device", event1);
         writer.write("device", event2);
@@ -43,12 +47,16 @@ public final class MotionEventWriterTest {
     public void testWriteHumidity() throws IOException {
         // temp/humidity events
         Instant now = Instant.now();
-        TempHumidityEvent event3 = new TempHumidityEvent(now, 16, 50, 22.3, 3.5);
+        LoraParams loraParams1 = new LoraParams(now, 16, -50, 10, 7);
+        TempHumidityEvent event1 = new TempHumidityEvent(loraParams1, 50, 22.3, 3.5);
+        Assert.assertNotNull(event1.toString());
         now = now.plusSeconds(10);
-        TempHumidityEvent event4 = new TempHumidityEvent(now, 17, 51, 22.3, 3.6);
+        LoraParams loraParams2 = new LoraParams(now, 17, -50, 10, 7);
+        TempHumidityEvent event2 = new TempHumidityEvent(loraParams2, 51, 22.3, 3.6);
+        Assert.assertNotNull(event1.toString());
 
-        writer.write("device", event3);
-        File file = writer.write("device", event4);
+        writer.write("device", event1);
+        File file = writer.write("device", event2);
         
         String result = new String(Files.readAllBytes(file.toPath()), Charset.forName("ASCII"));
         Assert.assertNotNull(result);

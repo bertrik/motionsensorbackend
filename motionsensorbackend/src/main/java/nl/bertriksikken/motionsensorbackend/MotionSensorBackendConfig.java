@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.mydevices.MyDevicesConfig;
 import nl.bertriksikken.ttn.TtnConfig;
 
 /**
@@ -17,6 +18,9 @@ public final class MotionSensorBackendConfig {
     @JsonProperty("ttn")
     private TtnConfig ttnConfig = new TtnConfig();
 
+    @JsonProperty("mydevices")
+    private MyDevicesConfig myDevicesConfig = new MyDevicesConfig();
+    
     @JsonProperty("storage")
     private String storage = ".";
 
@@ -24,6 +28,10 @@ public final class MotionSensorBackendConfig {
         return ttnConfig;
     }
 
+    public MyDevicesConfig getMyDevicesConfig() {
+        return myDevicesConfig;
+    }
+    
     public File getStorageFolder() {
         return new File(storage);
     }
