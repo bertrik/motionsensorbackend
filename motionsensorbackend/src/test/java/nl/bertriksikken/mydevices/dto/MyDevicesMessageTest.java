@@ -17,7 +17,8 @@ public final class MyDevicesMessageTest {
         MotionEvent event = new MotionEvent(loraParams, false, 456, 42, 21.3, 3.6);
         MyDevicesMessage message = MyDevicesMessage.fromMotionEvent(event);
         Assert.assertEquals(
-                "[{motion[1]=0 d}, {counter[2]=456 null}, {temp[3]=21.3 c}, {voltage[4]=3.6 v}, {time[5]=42 min}]",
+                "[{rssi[100]=-50.0 dbm}, {snr[101]=10.0 db}, {analog_sensor[102]=7.0 null}, {motion[1]=0 d},"
+                + " {counter[2]=456 null}, {temp[3]=21.3 c}, {voltage[4]=3.6 v}, {time[5]=42 min}]",
                 message.toString());
     }
 
@@ -26,7 +27,10 @@ public final class MyDevicesMessageTest {
         LoraParams loraParams = new LoraParams(Instant.now(), 123, -50, 10, 7);
         TempHumidityEvent event = new TempHumidityEvent(loraParams, 50, 21.3, 3.6);
         MyDevicesMessage message = MyDevicesMessage.fromHumidityEvent(event);
-        Assert.assertEquals("[{rel_hum[2]=50.0 p}, {temp[3]=21.3 c}, {voltage[4]=3.6 v}]", message.toString());
+        Assert.assertEquals(
+                "[{rssi[100]=-50.0 dbm}, {snr[101]=10.0 db}, {analog_sensor[102]=7.0 null}, {rel_hum[2]=50.0 p},"
+                + " {temp[3]=21.3 c}, {voltage[4]=3.6 v}]",
+                message.toString());
     }
 
 }
