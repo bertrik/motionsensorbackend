@@ -23,20 +23,8 @@ subprojects {
         mavenCentral()
     }
 
-    spotbugsMain {
-        reports {
-            html {
-                enabled = true
-            }
-        }
-    }
-    spotbugsTest {
-        reports {
-            html {
-                enabled = true
-            }
-        }
-    }
+    spotbugsMain { reports { html { enabled = true } } }
+    spotbugsTest { reports { html { enabled = true } } }
 
     // Standard libraries added to all projects
     dependencies {
