@@ -12,7 +12,7 @@ public final class EndDevices {
     private final List<EndDevice> endDevices = new ArrayList<>();
 
     public List<EndDevice> getEndDevices() {
-        return endDevices;
+        return new ArrayList<>(endDevices);
     }
 
     @Override
