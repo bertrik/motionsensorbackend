@@ -24,14 +24,14 @@ public final class MotionEventWriter {
     private static final Logger LOG = LoggerFactory.getLogger(MotionEventWriter.class);
 
     private final File baseFolder;
-    private final CsvMapper mapper;
+    private final CsvMapper csvMapper;
 
     public MotionEventWriter(File folder) {
         this.baseFolder = folder;
 
-        mapper = new CsvMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        csvMapper = new CsvMapper();
+        csvMapper.registerModule(new JavaTimeModule());
+        csvMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
     public File write(String deviceId, BaseEvent event) throws IOException {
@@ -43,9 +43,9 @@ public final class MotionEventWriter {
 
         // append data
         boolean append = file.exists();
-        CsvSchema schema = mapper.schemaFor(event.getClass());
+        CsvSchema schema = csvMapper.schemaFor(event.getClass());
         schema = append ? schema.withoutHeader() : schema.withHeader();
-        ObjectWriter writer = mapper.writer(schema);
+        ObjectWriter writer = csvMapper.writer(schema);
         try (FileOutputStream fos = new FileOutputStream(file, append)) {
             String value = writer.writeValueAsString(event).trim();
             LOG.info("Writing to {}: {}", filename, value);
