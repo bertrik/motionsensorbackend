@@ -125,7 +125,7 @@ public final class MqttListener {
         }
 
         @Override
-        public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+        public void messageArrived(String topic, MqttMessage mqttMessage) {
             LOG.info("Message arrived on topic '{}'", topic);
 
             // notify our listener, in an exception safe manner

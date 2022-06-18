@@ -10,6 +10,6 @@ public interface IMessageReceived {
      * 
      * @param uplink the message
      */
-    void messageReceived(TtnUplinkMessage uplink) throws Exception;
+    void messageReceived(TtnUplinkMessage uplink);
 
 }
