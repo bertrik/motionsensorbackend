@@ -1,7 +1,7 @@
 plugins {
   id 'com.github.spotbugs' version '5.0.13'
-  id 'com.github.ben-manes.versions' version '0.43.0'
-  id 'org.owasp.dependencycheck' version '7.3.0'
+  id 'com.github.ben-manes.versions' version '0.44.0'
+  id 'org.owasp.dependencycheck' version '7.3.2'
 }
 
 def isNonStable = { String version ->
@@ -23,8 +23,8 @@ subprojects {
     apply plugin: "com.github.spotbugs"
     apply plugin: 'com.github.ben-manes.versions'    
 
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 1.11
+    targetCompatibility = 1.11
 
     repositories {
         mavenCentral()
