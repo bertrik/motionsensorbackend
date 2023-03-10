@@ -1,0 +1,12 @@
+version: "3"
+services:
+  java:
+    image: ghcr.io/bertrik/motionsensorbackend
+    build: ..
+    restart: always
+    volumes:
+      - "./motionsensorbackend.yaml:/opt/motionsensorbackend/motionsensorbackend.yaml:ro"
+      - "./log4j.properties:/opt/motionsensorbackend/log4j.properties:ro"
+      - "./log:/opt/motionsensorbackend/log:rw"
+      - "./csv:/opt/motionsensorbackend/csv:rw"
+

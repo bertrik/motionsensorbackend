@@ -1,0 +1,11 @@
+---
+ttn:
+  mqtt_url: "tcp://eu1.cloud.thethings.network"
+  identity_server_url: "https://eu1.cloud.thethings.network"
+  identity_server_timeout: 20
+  name: "vleermuispir"
+  key: "NNSXS.M2OVRSGNZXVKOYKNF5L74D2UW5ZKFH7MHH664GA.34TWWXWGW35VCVAOWP4M4WIFVATPYDDUANWLK2ZMX2LXUQIDP6UA"
+mydevices:
+  url: "https://api.mydevices.com"
+  timeout: 20
+storage: "/opt/motionsensorbackend/csv"
