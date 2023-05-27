@@ -3,13 +3,14 @@ apply plugin: "application"
 mainClassName = 'nl.bertriksikken.motionsensorbackend.MotionSensorBackend'
 
 dependencies {
-    implementation libraries.reload4j
+    implementation libs.slf4j.reload4j
     
-    implementation libraries.mqtt_client
-    implementation libraries.jackson
-    
-    implementation libraries.retrofit
-    testImplementation libraries.retrofit_mock
+    implementation libs.bundles.retrofit
+    implementation libs.bundles.jackson
+
+    implementation libs.paho.client.mqttv3
+
+    testImplementation libs.retrofit2.retrofit.mock
 }
 
 // fix scripts executable bit and line endings
