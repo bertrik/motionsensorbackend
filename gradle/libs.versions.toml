@@ -1,5 +1,5 @@
 [versions]
-jackson = "2.15.1"
+jackson = "2.15.2"
 retrofit2 = "2.9.0"
 slf4j = "2.0.7"
 
@@ -19,7 +19,7 @@ retrofit2-retrofit-mock = { module = "com.squareup.retrofit2:retrofit-mock", ver
 junit = "junit:junit:4.13.2"
 
 paho-client-mqttv3 = "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5"
-mockito = "org.mockito:mockito-core:5.3.1"
+mockito = "org.mockito:mockito-core:5.4.0"
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-reload4j = { module="org.slf4j:slf4j-reload4j", version.ref = "slf4j" }
 
@@ -28,8 +28,8 @@ jackson = ["jackson-databind", "jackson-dataformat-csv", "jackson-dataformat-yam
 retrofit = ["retrofit2-retrofit", "retrofit2-converter-jackson", "retrofit2-converter-scalars"]
 
 [plugins]
-versions = "com.github.ben-manes.versions:0.46.0"
+versions = "com.github.ben-manes.versions:0.47.0"
 spotbugs = "com.github.spotbugs:5.0.14"
 version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.0"
-dependencycheck = "org.owasp.dependencycheck:8.2.1"
+dependencycheck = "org.owasp.dependencycheck:8.3.1"
 
