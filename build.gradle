@@ -21,15 +21,14 @@ subprojects {
     apply plugin: "com.github.spotbugs"
     apply plugin: 'com.github.ben-manes.versions'    
 
-    sourceCompatibility = 1.11
-    targetCompatibility = 1.11
+    java {
+        sourceCompatibility = 1.11
+        targetCompatibility = 1.11
+    }
 
     repositories {
         mavenCentral()
     }
-
-    spotbugsMain { reports { html { enabled = true } } }
-    spotbugsTest { reports { html { enabled = true } } }
 
     // Reject all non stable versions
     tasks.named("dependencyUpdates").configure {

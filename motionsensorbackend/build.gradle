@@ -1,6 +1,8 @@
 apply plugin: "application"
 
-mainClassName = 'nl.bertriksikken.motionsensorbackend.MotionSensorBackend'
+application {
+    mainClass = 'nl.bertriksikken.motionsensorbackend.MotionSensorBackend'
+}
 
 dependencies {
     implementation libs.slf4j.reload4j
